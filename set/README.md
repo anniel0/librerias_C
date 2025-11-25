@@ -1,187 +1,291 @@
-# Librería de Conjuntos en C
+# 📚 Librería de Conjuntos en C 
 
-Una implementación genérica de conjuntos (Sets) en lenguaje C que permite almacenar elementos de cualquier tipo mediante el uso de punteros void y funciones de comparación personalizadas.
+## 🏗️ Estructuras de Datos
 
-## Características
+| Estructura | Descripción | Campos |
+|------------|-------------|---------|
+| `setnodo` | Nodo del conjunto | `void *elem`, `setnodo *prox` |
+| `set` | Conjunto principal | `head`, `tail`, `data`, `size`, `pertain` |
 
-- **Genérica**: Almacena cualquier tipo de dato
-- **Flexible**: Soporta funciones de pertenencia personalizadas
-- **Completa**: Implementa todas las operaciones básicas de conjuntos
-- **Eficiente**: Incluye algoritmos de ordenamiento optimizados
-- **Segura**: Manejo robusto de memoria y verificación de errores
+## 📋 Tabla de Funciones
 
-## Estructuras de Datos
+### 🎯 Creación y Destrucción
+| Función | Descripción | Complejidad | Retorno |
+|---------|-------------|-------------|---------|
+| **[new_setnodo](#new_setnodo)** | Crea nuevo nodo | O(1) | `setnodo*` |
+| **[new_set](#new_set)** | Crea conjunto vacío | O(1) | `set` |
+| **[new_setin](#new_setin)** | Conjunto con función personalizada | O(1) | `set` |
+| **[free_set](#free_set)** | Libera memoria del conjunto | O(n) | `int` |
 
-### setnodo
+### 🔍 Operaciones Básicas
+| Función | Descripción | Complejidad | Retorno |
+|---------|-------------|-------------|---------|
+| **[set_app](#set_app)** | Agrega elemento único | O(n) | `int` |
+| **[set_pertain](#set_pertain)** | Verifica pertenencia | O(n) | `int` |
+| **[set_popat](#set_popat)** | Elimina por posición | O(n) | `int` |
+| **[set_size](#set_size)** | Cantidad de elementos | O(1) | `int` |
+| **[set_empty](#set_empty)** | Verifica si está vacío | O(1) | `int` |
+| **[set_at](#set_at)** | Obtiene elemento por posición | O(n) | `void` |
+| **[set_swap](#set_swap)** | Intercambia elementos | O(n) | `int` |
+
+### 🔄 Operaciones de Conjunto
+| Función | Descripción | Complejidad | Retorno |
+|---------|-------------|-------------|---------|
+| **[set_union](#set_union)** | Unión de conjuntos | O(n×m) | `set` |
+| **[set_intersection](#set_intersection)** | Intersección de conjuntos | O(n×m) | `set` |
+| **[set_difference](#set_difference)** | Diferencia de conjuntos | O(n×m) | `set` |
+| **[set_subset](#set_subset)** | Verifica subconjunto | O(n×m) | `int` |
+
+### 📊 Ordenamiento
+| Función | Descripción | Complejidad | Retorno |
+|---------|-------------|-------------|---------|
+| **[set_msort](#set_msort)** | Ordena con función comparación | O(n log n) | `void` |
+| **[set_msortb](#set_msortb)** | Ordena con memcmp | O(n log n) | `void` |
+
+### 🔄 Conversiones
+| Función | Descripción | Complejidad | Retorno |
+|---------|-------------|-------------|---------|
+| **[set_to_array](#set_to_array)** | Convierte a arreglo | O(n) | `void**` |
+| **[array_to_set](#array_to_set)** | Crea desde arreglo | O(n) | `set` |
+| **[set_filter](#set_filter)** | Filtra elementos | O(n) | `set` |
+
+---
+
+## 📖 Documentación Detallada por Función
+
+### <a name="new_setnodo"></a>🔹 `new_setnodo`
 ```c
-typedef struct setnodo {
-    void *elem;           // Puntero al elemento
-    struct setnodo *prox; // Puntero al siguiente nodo
-} setnodo;
+setnodo *new_setnodo(void *elem, size_t data)
 ```
+**Parámetros:**
+- `elem`: Puntero al elemento a almacenar
+- `data`: Tamaño en bytes del elemento
 
-### set
+**Retorno:** Puntero al nuevo nodo o NULL en error
+
+---
+
+### <a name="new_set"></a>🔹 `new_set`
 ```c
-typedef struct {
-    setnodo *head, *tail; // Primer y último nodo
-    size_t data;          // Tamaño de cada elemento
-    int size;             // Cantidad de elementos
-    int (*pertain)(const void *, const void *); // Función de pertenencia
-} set;
+set new_set(size_t data)
 ```
+**Parámetros:**
+- `data`: Tamaño en bytes de cada elemento
 
-## API de la Librería
+**Retorno:** Conjunto vacío inicializado
 
-### Creación y Destrucción
+---
 
-#### `new_setnodo(void *elem, size_t data)`
-Crea un nuevo nodo para el conjunto.
+### <a name="new_setin"></a>🔹 `new_setin`
 ```c
-int valor = 42;
-setnodo *nodo = new_setnodo(&valor, sizeof(int));
+set new_setin(size_t data, int (*pertain)(const void *, const void *))
 ```
+**Parámetros:**
+- `data`: Tamaño en bytes de cada elemento
+- `pertain`: Función de comparación personalizada
 
-#### `new_set(size_t data)`
-Crea un conjunto vacío.
+**Retorno:** Conjunto con función de pertenencia personalizada
+
+---
+
+### <a name="free_set"></a>🔹 `free_set`
 ```c
-set conjunto = new_set(sizeof(int));
+int free_set(set *prime)
 ```
+**Parámetros:**
+- `prime`: Puntero al conjunto a liberar
 
-#### `new_setin(size_t data, int (*pertain)(const void *, const void *))`
-Crea un conjunto con función de pertenencia personalizada.
+**Retorno:** 1 en éxito, 0 en error
+
+---
+
+### <a name="set_app"></a>🔹 `set_app`
 ```c
-int comparar_enteros(const void *a, const void *b) {
-    return *(int*)a == *(int*)b;
-}
-set conjunto = new_setin(sizeof(int), comparar_enteros);
+int set_app(set *prime, void *elem)
 ```
+**Parámetros:**
+- `prime`: Conjunto destino
+- `elem`: Elemento a agregar
 
-#### `free_set(set *prime)`
-Libera toda la memoria del conjunto.
+**Retorno:** 1 si se agregó, 0 si ya existía o error
+
+---
+
+### <a name="set_pertain"></a>🔹 `set_pertain`
 ```c
-free_set(&conjunto);
+int set_pertain(const set *prime, void *elem)
 ```
+**Parámetros:**
+- `prime`: Conjunto a verificar
+- `elem`: Elemento a buscar
 
-### Operaciones Básicas
+**Retorno:** 1 si pertenece, 0 si no pertenece
 
-#### `set_app(set *prime, void *elem)`
-Agrega un elemento al conjunto si no existe.
+---
+
+### <a name="set_popat"></a>🔹 `set_popat`
 ```c
-int nuevo_elemento = 100;
-set_app(&conjunto, &nuevo_elemento);
+int set_popat(set *prime, int position)
 ```
+**Parámetros:**
+- `prime`: Conjunto a modificar
+- `position`: Posición del elemento a eliminar (0-based)
 
-#### `set_pertain(const set *prime, void *elem)`
-Verifica si un elemento pertenece al conjunto.
+**Retorno:** 1 en éxito, 0 en error
+
+---
+
+### <a name="set_size"></a>🔹 `set_size`
 ```c
-if (set_pertain(&conjunto, &elemento_buscado)) {
-    printf("Elemento encontrado\n");
-}
+int set_size(const set prime)
 ```
+**Parámetros:**
+- `prime`: Conjunto a verificar
 
-#### `set_popat(set *prime, int position)`
-Elimina un elemento en una posición específica.
+**Retorno:** Número de elementos en el conjunto
+
+---
+
+### <a name="set_empty"></a>🔹 `set_empty`
 ```c
-set_popat(&conjunto, 2); // Elimina el tercer elemento
+int set_empty(const set prime)
 ```
+**Parámetros:**
+- `prime`: Conjunto a verificar
 
-#### `set_size(const set prime)`
-Retorna el número de elementos.
+**Retorno:** 1 si está vacío, 0 si tiene elementos
+
+---
+
+### <a name="set_at"></a>🔹 `set_at`
 ```c
-int cantidad = set_size(conjunto);
+void set_at(const set *prime, int position, void *elem)
 ```
+**Parámetros:**
+- `prime`: Conjunto fuente
+- `position`: Posición del elemento (0-based)
+- `elem`: Buffer donde copiar el elemento
 
-#### `set_empty(const set prime)`
-Verifica si el conjunto está vacío.
+**Retorno:** void (resultado por referencia)
+
+---
+
+### <a name="set_swap"></a>🔹 `set_swap`
 ```c
-if (set_empty(conjunto)) {
-    printf("Conjunto vacío\n");
-}
+int set_swap(set *prime, int pos1, int pos2)
 ```
+**Parámetros:**
+- `prime`: Conjunto a modificar
+- `pos1`, `pos2`: Posiciones a intercambiar
 
-### Operaciones de Conjunto
+**Retorno:** 1 en éxito, 0 en error
 
-#### `set_union(const set *prime, const set *otro)`
-Unión de dos conjuntos.
+---
+
+### <a name="set_union"></a>🔹 `set_union`
 ```c
-set union = set_union(&conjunto1, &conjunto2);
+set set_union(const set *prime, const set *otro)
 ```
+**Parámetros:**
+- `prime`, `otro`: Conjuntos a unir
 
-#### `set_intersection(const set *prime, const set *otro)`
-Intersección de dos conjuntos.
+**Retorno:** Nuevo conjunto con la unión
+
+---
+
+### <a name="set_intersection"></a>🔹 `set_intersection`
 ```c
-set interseccion = set_intersection(&conjunto1, &conjunto2);
+set set_intersection(const set *prime, const set *otro)
 ```
+**Parámetros:**
+- `prime`, `otro`: Conjuntos para intersección
 
-#### `set_difference(const set *prime, const set *otro)`
-Diferencia entre conjuntos.
+**Retorno:** Nuevo conjunto con la intersección
+
+---
+
+### <a name="set_difference"></a>🔹 `set_difference`
 ```c
-set diferencia = set_difference(&conjunto1, &conjunto2);
+set set_difference(const set *prime, const set *otro)
 ```
+**Parámetros:**
+- `prime`: Conjunto minuendo
+- `otro`: Conjunto sustraendo
 
-#### `set_subset(const set *prime, const set *otro)`
-Verifica si un conjunto es subconjunto de otro.
+**Retorno:** Nuevo conjunto con A - B
+
+---
+
+### <a name="set_subset"></a>🔹 `set_subset`
 ```c
-if (set_subset(&conjunto1, &conjunto2)) {
-    printf("conjunto1 es subconjunto de conjunto2\n");
-}
+int set_subset(const set *prime, const set *otro)
 ```
+**Parámetros:**
+- `prime`: Supuesto superconjunto
+- `otro`: Supuesto subconjunto
 
-### Acceso y Manipulación
+**Retorno:** 1 si B ⊆ A, 0 en caso contrario
 
-#### `set_at(const set *prime, int position, void *elem)`
-Obtiene un elemento por posición.
+---
+
+### <a name="set_msort"></a>🔹 `set_msort`
 ```c
-int elemento;
-set_at(&conjunto, 0, &elemento); // Obtiene el primer elemento
+void set_msort(set *prime, int (*compare)(const void *, const void *))
 ```
+**Parámetros:**
+- `prime`: Conjunto a ordenar
+- `compare`: Función de comparación
 
-#### `set_swap(set *prime, int pos1, int pos2)`
-Intercambia dos elementos.
+**Retorno:** void (ordenamiento in-place)
+
+---
+
+### <a name="set_msortb"></a>🔹 `set_msortb`
 ```c
-set_swap(&conjunto, 0, 1); // Intercambia primer y segundo elemento
+void set_msortb(set *prime)
 ```
+**Parámetros:**
+- `prime`: Conjunto a ordenar
 
-### Ordenamiento
+**Retorno:** void (ordenamiento in-place con memcmp)
 
-#### `set_msort(set *prime, int (*compare)(const void *, const void *))`
-Ordena el conjunto usando merge sort con función de comparación.
+---
+
+### <a name="set_to_array"></a>🔹 `set_to_array`
 ```c
-int comparar(const void *a, const void *b) {
-    return *(int*)a - *(int*)b;
-}
-set_msort(&conjunto, comparar);
+void **set_to_array(const set prime)
 ```
+**Parámetros:**
+- `prime`: Conjunto a convertir
 
-#### `set_msortb(set *prime)`
-Ordena el conjunto usando memcmp para comparación binaria.
+**Retorno:** Arreglo dinámico con los elementos
+
+---
+
+### <a name="array_to_set"></a>🔹 `array_to_set`
 ```c
-set_msortb(&conjunto);
+set array_to_set(void *arr, int size, size_t data_size)
 ```
+**Parámetros:**
+- `arr`: Arreglo fuente
+- `size`: Número de elementos
+- `data_size`: Tamaño de cada elemento
 
-### Conversiones
+**Retorno:** Nuevo conjunto con elementos del arreglo
 
-#### `set_to_array(const set prime)`
-Convierte el conjunto a un arreglo.
+---
+
+### <a name="set_filter"></a>🔹 `set_filter`
 ```c
-void **arreglo = set_to_array(conjunto);
+set set_filter(const set *prime, int (*filter)(const void *))
 ```
+**Parámetros:**
+- `prime`: Conjunto a filtrar
+- `filter`: Función de filtrado (retorna 1 para mantener)
 
-#### `array_to_set(void *arr, int size, size_t data_size)`
-Crea un conjunto a partir de un arreglo.
-```c
-int arreglo[] = {1, 2, 3, 4, 5};
-set conjunto = array_to_set(arreglo, 5, sizeof(int));
-```
+**Retorno:** Nuevo conjunto filtrado
 
-#### `set_filter(const set *prime, int (*filter)(const void *))`
-Filtra el conjunto según una condición.
-```c
-int es_par(const void *elem) {
-    return (*(int*)elem % 2 == 0);
-}
-set pares = set_filter(&conjunto, es_par);
-```
+---
 
 ## Ejemplos de Uso
 
@@ -303,6 +407,16 @@ gcc -o programa main.c set.c
 2. **Tipos de Datos**: Para tipos complejos, proporciona una función de pertenencia adecuada
 3. **Thread Safety**: Esta implementación no es thread-safe
 4. **Rendimiento**: Las operaciones de búsqueda son O(n), considere esto para conjuntos grandes
+   
+## 📝 Notas de Uso
+- ✅ Verifica siempre los retornos de las funciones
+- ✅ Usa `free_set` para liberar memoria
+- ✅ Proporciona funciones de comparación para tipos complejos
+- ❌ No modifiques elementos directamente en el conjunto
+- ❌ No uses posiciones inválidas en operaciones por índice
+
+Esta tabla proporciona una referencia rápida para todas las funciones disponibles en la librería de conjuntos.
+
 
 ## Licencia
 
